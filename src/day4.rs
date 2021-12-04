@@ -93,3 +93,57 @@ pub fn part1() -> i32 {
     }
     return 0;
 }
+
+pub fn part2() -> i32 {
+    let input = parse_input();
+
+    let mut score: Vec<Vec<Vec<bool>>> = vec![vec![vec![false; 5]; 5]; input.boards.len()];
+
+    let mut winner_boards: Vec<bool> = vec![false; input.boards.len()];
+
+    for input_number in &input.numbers {
+        for board_index in 0..input.boards.len() {
+            let board = &input.boards[board_index];
+            for r in 0..BOARD_LEN {
+                for c in 0..BOARD_LEN {
+                    if board[r][c] == *input_number {
+                        score[board_index][r][c] = true;
+
+                        // count score
+                        let mut row_score = 0;
+                        let mut col_score = 0;
+                        for i in 0..BOARD_LEN {
+                            if score[board_index][r][i] {
+                                row_score += 1
+                            }
+                            if score[board_index][i][c] {
+                                col_score += 1
+                            }
+                        }
+                        if row_score == BOARD_LEN || col_score == BOARD_LEN {
+                            // board is winner, register it
+                            winner_boards[board_index] = true;
+
+                            // last board to win, calculate score
+                            let winner_board_count: usize = winner_boards
+                                .iter()
+                                .fold(0, |acc, e| if *e { acc + 1 } else { acc });
+                            if winner_board_count == input.boards.len() {
+                                let mut sum_of_unmarked = 0;
+                                for i in 0..BOARD_LEN {
+                                    for j in 0..BOARD_LEN {
+                                        if !score[board_index][i][j] {
+                                            sum_of_unmarked += board[i][j];
+                                        }
+                                    }
+                                }
+                                return input_number * sum_of_unmarked;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
