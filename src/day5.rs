@@ -46,9 +46,9 @@ pub fn part1() -> i32 {
             // vertical line
             let range: (i32, i32);
             if first_point.1 > second_point.1 {
-                range = (second_point.1, first_point.1 + 1)
+                range = (second_point.1, first_point.1 + 1);
             } else {
-                range = (first_point.1, second_point.1 + 1)
+                range = (first_point.1, second_point.1 + 1);
             }
 
             let x = first_point.0;
@@ -62,9 +62,9 @@ pub fn part1() -> i32 {
             //horizontal line
             let range: (i32, i32);
             if first_point.0 > second_point.0 {
-                range = (second_point.0, first_point.0 + 1)
+                range = (second_point.0, first_point.0 + 1);
             } else {
-                range = (first_point.0, second_point.0 + 1)
+                range = (first_point.0, second_point.0 + 1);
             }
 
             let y = first_point.1;
@@ -88,5 +88,69 @@ pub fn part1() -> i32 {
 }
 
 pub fn part2() -> i32 {
-    0
+    let points = parse_input(false);
+    let mut points_with_lines: HashMap<(i32, i32), i32> = HashMap::new();
+
+    for (first_point, second_point) in points {
+        if first_point.0 == second_point.0 {
+            // vertical line
+            let range: (i32, i32);
+            if first_point.1 > second_point.1 {
+                range = (second_point.1, first_point.1 + 1);
+            } else {
+                range = (first_point.1, second_point.1 + 1);
+            }
+
+            let x = first_point.0;
+            for y in range.0..range.1 {
+                match points_with_lines.get(&(x, y)) {
+                    Some(&n) => points_with_lines.insert((x, y), n + 1),
+                    _ => points_with_lines.insert((x, y), 1),
+                };
+            }
+        } else if first_point.1 == second_point.1 {
+            // horizontal line
+            let range: (i32, i32);
+            if first_point.0 > second_point.0 {
+                range = (second_point.0, first_point.0 + 1);
+            } else {
+                range = (first_point.0, second_point.0 + 1);
+            }
+
+            let y = first_point.1;
+            for x in range.0..range.1 {
+                match points_with_lines.get(&(x, y)) {
+                    Some(&n) => points_with_lines.insert((x, y), n + 1),
+                    _ => points_with_lines.insert((x, y), 1),
+                };
+            }
+        } else {
+            // diagonal line
+            let ordered_by_x: ((i32, i32), (i32, i32));
+            if first_point.0 > second_point.0 {
+                ordered_by_x = (second_point, first_point);
+            } else {
+                ordered_by_x = (first_point, second_point);
+            }
+            let slope = (ordered_by_x.1 .1 - ordered_by_x.0 .1).signum();
+
+            for inc in 0..((ordered_by_x.1 .0 - ordered_by_x.0 .0) + 1) {
+                let x = ordered_by_x.0 .0 + inc;
+                let y = ordered_by_x.0 .1 + (inc * slope);
+                match points_with_lines.get(&(x, y)) {
+                    Some(&n) => points_with_lines.insert((x, y), n + 1),
+                    _ => points_with_lines.insert((x, y), 1),
+                };
+            }
+        }
+    }
+
+    // count intersections
+    let mut sum: i32 = 0;
+    for (_, &number_of_lines) in points_with_lines.iter() {
+        if number_of_lines > 1 {
+            sum += 1;
+        }
+    }
+    sum
 }
