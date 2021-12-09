@@ -52,14 +52,15 @@ pub fn part2() -> u32 {
 
     let mut min_fuel = u32::MAX;
     for crab_line in min..max {
-        // calc fuel
         let mut fuel = 0;
         for pos in &positions {
+            let mut dist = 0;
             if pos > &crab_line {
-                fuel += (0..=(pos - crab_line)).fold(0, |a, b| a + b);
+                dist = pos - crab_line;
             } else if pos < &crab_line {
-                fuel += (0..=(crab_line - pos)).fold(0, |a, b| a + b);
+                dist = crab_line - pos;
             }
+            fuel += dist * (dist + 1) / 2;
         }
         if fuel < min_fuel {
             min_fuel = fuel;
